@@ -234,6 +234,24 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
     return msg_params;
 }
 
+/**
+  * Converts msg_params.message to a json message
+  *
+  * @param msg_params message data
+  */
+ Json::Value ZyreBaseCommunicator::convertZyreMsgToJson(ZyreMsgContent* msg_params)
+ {
+    std::stringstream msg_stream;
+    msg_stream << msg_params->message;
+
+    Json::Value root;
+    Json::CharReaderBuilder reader_builder;
+    std::string errors;
+    bool ok = Json::parseFromStream(reader_builder, msg_stream, &root, &errors);
+
+    return root;
+}
+
 void ZyreBaseCommunicator::printZyreMsgContent(const ZyreMsgContent &msgContent)
 {
 

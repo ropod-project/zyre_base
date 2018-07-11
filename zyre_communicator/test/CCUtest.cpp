@@ -24,8 +24,12 @@ void CCU::recvMsgCallback(ZyreMsgContent* msgContent)
 
 int main(int argc, char *argv[])
 {
-    std::vector<std::string> groups = {"Group1", "Group2", "Group3"};
-    std::vector<std::string> messageTypes = {};
+    std::vector<std::string> groups;
+    groups.push_back("Group1");
+    groups.push_back("Group2");
+    groups.push_back("Group3");
+
+    std::vector<std::string> messageTypes;
     bool b = true;
 
     {

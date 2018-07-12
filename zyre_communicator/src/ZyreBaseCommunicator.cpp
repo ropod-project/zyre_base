@@ -255,7 +255,8 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
 std::string ZyreBaseCommunicator::generateUUID()
 {
     zuuid_t *uuid = zuuid_new();
-    const char *uuid_str = zuuid_str_canonical(uuid);
+    const char *uuid_cstr = zuuid_str_canonical(uuid);
+    std::string uuid_str(uuid_cstr);
     zuuid_destroy(&uuid);
     return std::string(uuid_str);
 }

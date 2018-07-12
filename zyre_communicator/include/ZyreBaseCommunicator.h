@@ -57,7 +57,7 @@ class ZyreBaseCommunicator {
     void printZyreMsgContent(const ZyreMsgContent &msgContent);
 
     virtual void recvMsgCallback(ZyreMsgContent* msgContent) = 0;
-
+    Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);
 
     private:
     ZyreParams params;
@@ -70,7 +70,6 @@ class ZyreBaseCommunicator {
     static void receiveLoop(zsock_t* pipe, void* args);
     static void discoverLoop(zsock_t* pipe, void* args);
     zmsg_t* stringToZmsg(std::string msg);
-    Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);
     ZyreMsgContent* zmsgToZyreMsgContent(zmsg_t *msg);
 };
 

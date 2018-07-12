@@ -58,6 +58,7 @@ class ZyreBaseCommunicator {
 
     virtual void recvMsgCallback(ZyreMsgContent* msgContent) = 0;
     Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);
+    std::string generateUUID();
 
     private:
     ZyreParams params;

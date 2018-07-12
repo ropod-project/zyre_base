@@ -79,7 +79,7 @@ void ZyreBaseCommunicator::receiveLoop(zsock_t *pipe, void *args)
             if (streq (command, "$TERM"))
                 terminated = true;
             // else
-	    // if (streq (command, "SHOUT")) { 
+	    // if (streq (command, "SHOUT")) {
             // char *string = zmsg_popstr (msg);
             // zyre_shouts (node, "CHAT", "%s", string);
 	    // }
@@ -250,6 +250,14 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
     bool ok = Json::parseFromStream(reader_builder, msg_stream, &root, &errors);
 
     return root;
+}
+
+std::string ZyreBaseCommunicator::generateUUID()
+{
+    zuuid_t *uuid = zuuid_new();
+    const char *uuid_str = zuuid_str_canonical(uuid);
+    zuuid_destroy(&uuid);
+    return std::string(uuid_str);
 }
 
 void ZyreBaseCommunicator::printZyreMsgContent(const ZyreMsgContent &msgContent)

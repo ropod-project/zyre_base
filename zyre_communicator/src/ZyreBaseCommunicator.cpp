@@ -79,7 +79,7 @@ void ZyreBaseCommunicator::receiveLoop(zsock_t *pipe, void *args)
             if (streq (command, "$TERM"))
                 terminated = true;
             // else
-	    // if (streq (command, "SHOUT")) { 
+	    // if (streq (command, "SHOUT")) {
             // char *string = zmsg_popstr (msg);
             // zyre_shouts (node, "CHAT", "%s", string);
 	    // }
@@ -232,6 +232,39 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
 
     ZyreMsgContent* msg_params = new ZyreMsgContent{sevent, speer, sname, sgroup, smessage};
     return msg_params;
+}
+
+/**
+  * Converts msg_params.message to a json message
+  *
+  * @param msg_params message data
+  */
+ Json::Value ZyreBaseCommunicator::convertZyreMsgToJson(ZyreMsgContent* msg_params)
+ {
+    std::stringstream msg_stream;
+    msg_stream << msg_params->message;
+
+    Json::Value root;
+    Json::CharReaderBuilder reader_builder;
+    std::string errors;
+    bool ok = Json::parseFromStream(reader_builder, msg_stream, &root, &errors);
+
+    return root;
+}
+
+std::string ZyreBaseCommunicator::convertJsonToString(const Json::Value &root)
+{
+    std::string msg = Json::writeString(json_stream_builder_, root);
+	return msg;
+}
+
+std::string ZyreBaseCommunicator::generateUUID()
+{
+    zuuid_t *uuid = zuuid_new();
+    const char *uuid_cstr = zuuid_str_canonical(uuid);
+    std::string uuid_str(uuid_cstr);
+    zuuid_destroy(&uuid);
+    return std::string(uuid_str);
 }
 
 void ZyreBaseCommunicator::printZyreMsgContent(const ZyreMsgContent &msgContent)

@@ -4,6 +4,7 @@
 #include<zyre.h>
 #include<string>
 #include<vector>
+#include <json/json.h>
 
 struct ZyreParams
 {
@@ -56,7 +57,9 @@ class ZyreBaseCommunicator {
     void printZyreMsgContent(const ZyreMsgContent &msgContent);
 
     virtual void recvMsgCallback(ZyreMsgContent* msgContent) = 0;
-
+    Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);
+    std::string convertJsonToString(const Json::Value &root);
+    std::string generateUUID();
 
     private:
     ZyreParams params;
@@ -65,6 +68,7 @@ class ZyreBaseCommunicator {
     zactor_t* discoverActor;
     bool printAllReceivedMessages;
     const int ZYRESLEEPTIME = 250;
+    Json::StreamWriterBuilder json_stream_builder_;
 
     static void receiveLoop(zsock_t* pipe, void* args);
     static void discoverLoop(zsock_t* pipe, void* args);

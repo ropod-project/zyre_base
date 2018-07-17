@@ -252,6 +252,12 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
     return root;
 }
 
+std::string ZyreBaseCommunicator::convertJsonToString(const Json::Value &root)
+{
+    std::string msg = Json::writeString(json_stream_builder_, root);
+	return msg;
+}
+
 std::string ZyreBaseCommunicator::generateUUID()
 {
     zuuid_t *uuid = zuuid_new();

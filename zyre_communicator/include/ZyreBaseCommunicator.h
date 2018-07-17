@@ -67,11 +67,13 @@ class ZyreBaseCommunicator {
     zactor_t* discoverActor;
     bool printAllReceivedMessages;
     const int ZYRESLEEPTIME = 250;
+    Json::StreamWriterBuilder json_stream_builder_;
 
     static void receiveLoop(zsock_t* pipe, void* args);
     static void discoverLoop(zsock_t* pipe, void* args);
     zmsg_t* stringToZmsg(std::string msg);
     ZyreMsgContent* zmsgToZyreMsgContent(zmsg_t *msg);
+    std::string convertJsonToString(const Json::Value &root);
 };
 
 #endif

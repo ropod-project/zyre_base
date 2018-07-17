@@ -58,6 +58,7 @@ class ZyreBaseCommunicator {
 
     virtual void recvMsgCallback(ZyreMsgContent* msgContent) = 0;
     Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);
+    std::string convertJsonToString(const Json::Value &root);
     std::string generateUUID();
 
     private:
@@ -73,7 +74,6 @@ class ZyreBaseCommunicator {
     static void discoverLoop(zsock_t* pipe, void* args);
     zmsg_t* stringToZmsg(std::string msg);
     ZyreMsgContent* zmsgToZyreMsgContent(zmsg_t *msg);
-    std::string convertJsonToString(const Json::Value &root);
 };
 
 #endif

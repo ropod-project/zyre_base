@@ -5,6 +5,7 @@
 #include<string>
 #include<vector>
 #include <json/json.h>
+#include <ctime>
 
 struct ZyreParams
 {
@@ -55,6 +56,7 @@ class ZyreBaseCommunicator {
     void printJoinedGroups();
     void printReceivingMessageTypes();
     void printZyreMsgContent(const ZyreMsgContent &msgContent);
+    std::string getTimeStamp();
 
     virtual void recvMsgCallback(ZyreMsgContent* msgContent) = 0;
     Json::Value convertZyreMsgToJson(ZyreMsgContent* msg_params);

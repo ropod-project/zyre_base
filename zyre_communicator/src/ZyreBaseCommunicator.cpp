@@ -271,3 +271,12 @@ void ZyreBaseCommunicator::printZyreMsgContent(const ZyreMsgContent &msgContent)
 {
 
 }
+
+std::string ZyreBaseCommunicator::getTimeStamp()
+{
+	time_t now;
+    time(&now);
+    char buffer[20];
+    strftime(buffer, 20, "%FT%TZ", gmtime(&now));
+    return std::string(buffer);
+}

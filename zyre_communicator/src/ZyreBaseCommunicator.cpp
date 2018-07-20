@@ -7,7 +7,8 @@
 ZyreBaseCommunicator::ZyreBaseCommunicator(const std::string &nodeName,
 		 const std::vector<std::string> &groups,
 		 const std::vector<std::string> &messageTypes,
-		 const bool &printAllReceivedMessages)
+		 const bool &printAllReceivedMessages,
+         const std::string& interface)
 {
     this->params.nodeName = nodeName;
     this->params.messageTypes;
@@ -17,6 +18,10 @@ ZyreBaseCommunicator::ZyreBaseCommunicator(const std::string &nodeName,
     this->node = zyre_new(nodeName.c_str());
     if (!node)
         return;                 //  Could not create new node
+    if (interface != "")
+    {
+        zyre_set_interface (node, interface.c_str());
+    }
     zyre_start(node);
     zclock_sleep(this->ZYRESLEEPTIME);
 

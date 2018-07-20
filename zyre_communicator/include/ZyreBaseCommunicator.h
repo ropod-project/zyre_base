@@ -35,7 +35,8 @@ class ZyreBaseCommunicator {
     ZyreBaseCommunicator(const std::string &nodeName,
 	    const std::vector<std::string> &groups,
 	    const std::vector<std::string> &messageTypes,
-	    const bool &printAllReceivedMessages);
+	    const bool &printAllReceivedMessages,
+        const std::string& interface="");
     ~ZyreBaseCommunicator();
 
     void shout(const std::string &message);

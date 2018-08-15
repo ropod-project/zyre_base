@@ -1,3 +1,5 @@
+[![pipeline status](https://git.ropod.org/ropod/ropod_common/badges/master/pipeline.svg)](https://git.ropod.org/ropod/ropod_common/commits/master)
+
 # ROPOD Common Repository
 
 ## Zyre Communicator

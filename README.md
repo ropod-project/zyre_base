@@ -10,3 +10,9 @@ Abstract Base Class to enable comfortable zyre communication through inheritance
 git clone git@git.ropod.org:ropod/ropod_common.git
 sudo mv ropod_common /opt/ropod/
 ```
+
+For the pyre base class, you can run:
+
+```
+sudo python setup.py develop
+```

@@ -41,3 +41,6 @@ build/
 cmake-build-*/
 *.iws
 out/
+
+# Setup tools
+*.egg-info

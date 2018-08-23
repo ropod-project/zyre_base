@@ -10,6 +10,7 @@ import threading
 import ast
 
 from pyre.zactor import ZActor
+
 class PyreBaseCommunicator(pyre.Pyre):
     def __init__(self, node_name, groups, message_types, verbose=False,
                  interface=None):
@@ -34,6 +35,7 @@ class PyreBaseCommunicator(pyre.Pyre):
 
         self.ctx = zmq.Context()
         self.pipe = zhelper.zthread_fork(self.ctx, self.receive_loop)
+
     def receive_msg_cb(self, msg_content):
         pass
 
@@ -68,7 +70,6 @@ class PyreBaseCommunicator(pyre.Pyre):
                 items = dict(poller.poll())
                 if pipe in items and items[pipe] == zmq.POLLIN:
                     message = pipe.recv()
-                    # message to quit
                     if message.decode('utf-8') == "$$STOP":
                         break
                     print("CHAT_TASK: %s" % message)
@@ -91,6 +92,7 @@ class PyreBaseCommunicator(pyre.Pyre):
                     elif msg_type == "ENTER":
                         headers = json.loads(self.received_msg.pop(0).decode('utf-8'))
                         print("Headers: ", headers)
+
                     msg_content = self.received_msg.pop(0)
 
                     if self.verbose:
@@ -146,8 +148,12 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
 
         message = msg.encode('utf-8')
-        time.sleep(1)
-        self.node.whispers(uuid.UUID(hex=peer_uuid), message)
+
+        if isinstance(peer_uuid, list):
+            pass
+        else:
+            time.sleep(1)
+            self.node.whispers(uuid.UUID(hex=peer_uuid), message)
 
     def test(self):
         print(self.name())

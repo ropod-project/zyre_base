@@ -176,14 +176,15 @@ class PyreBaseCommunicator(pyre.Pyre):
 
     def test(self):
         print(self.name())
-        print(self.own_groups())
+        print(self.groups())
         print(self.peers())
 
         time.sleep(1)
         for group in self.own_groups():
             self.shout("hello", group)
             time.sleep(1)
-        # self.whisper("7315a4aa-1cf5-48f7-a609-b1d8417bb884", "hello whispering")
+        self.whisper("hello whispering", peer_name="chat_tester")
+        self.whisper("hello whispering", peer_names=["chat_tester", "chat_tester"])
 
 
 def main():

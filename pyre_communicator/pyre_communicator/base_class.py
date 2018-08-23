@@ -8,6 +8,7 @@ from pyre import zhelper
 import signal
 import threading
 import ast
+import datetime
 
 from pyre.zactor import ZActor
 
@@ -42,10 +43,6 @@ class PyreBaseCommunicator(pyre.Pyre):
     def groups(self):
         return self.own_groups()
 
-    def convert_zyre_msg_to_json(self):
-        """Converts a zyre message to json"""
-        pass
-
     def convert_zyre_msg_to_dict(self, msg):
         try:
             return ast.literal_eval(msg)
@@ -57,10 +54,16 @@ class PyreBaseCommunicator(pyre.Pyre):
             self.leave(group)
 
     def generate_uuid(self):
-        pass
+        """
+        Returns a string containing a random uuid
+        """
+        return str(uuid.uuid4())
 
     def get_time_stamp(self):
-        pass
+        """
+        Returns a string containing the time stamp in ISO format
+        """
+        return datetime.datetime.today().isoformat()
 
     def receive_loop(self, ctx, pipe):
 

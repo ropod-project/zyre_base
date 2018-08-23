@@ -18,7 +18,7 @@ class PyreBaseCommunicator(pyre.Pyre):
 
         self.group_names = groups
         self.message_types = message_types
-        self.peer_adressbook = {}
+        self.peer_directory = {}
 
         if interface:
             self.set_interface(interface)
@@ -47,7 +47,10 @@ class PyreBaseCommunicator(pyre.Pyre):
         pass
 
     def convert_zyre_msg_to_dict(self, msg):
-        return ast.literal_eval(msg)
+        try:
+            return ast.literal_eval(msg)
+        except:
+            return None
 
     def leave_groups(self, groups):
         for group in groups:

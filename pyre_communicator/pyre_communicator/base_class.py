@@ -10,6 +10,7 @@ import threading
 import ast
 import datetime
 
+from zyre_params import ZyreMsg
 from pyre.zactor import ZActor
 
 ZYRE_SLEEP_TIME = 0.250
@@ -82,38 +83,60 @@ class PyreBaseCommunicator(pyre.Pyre):
                     print("CHAT_TASK: %s" % message)
                 else:
                     self.received_msg = self.recv()
-                    msg_type = self.received_msg.pop(0).decode('utf-8')
-                    peer_uuid = self.received_msg.pop(0)
-                    peer_name = self.received_msg.pop(0)
+                    if self.verbose:
+                         print(self.received_msg)
 
+                    zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
+                                       peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
+                                       peer_name=self.received_msg.pop(0).decode('utf-8'))
 
                     if self.verbose:
                         print("----- new message ----- ")
-                        print("Type: ", msg_type)
-                        print("Peer UUID: ", uuid.UUID(bytes=peer_uuid))
-                        print("Peer Name: ", peer_name)
+                        print("Type: ", zyre_msg.msg_type)
+                        print("Peer UUID: ", zyre_msg.peer_uuid)
+                        print("Peer Name: ", zyre_msg.peer_name)
 
-                    if msg_type == "SHOUT":
-                        group_name = self.received_msg.pop(0)
-                        print("Group: ", group_name)
-                    elif msg_type == "ENTER":
-                        headers = json.loads(self.received_msg.pop(0).decode('utf-8'))
-                        print("Headers: ", headers)
+                    if zyre_msg.msg_type == "SHOUT":
+                        zyre_msg.update(group_name=self.received_msg.pop(0))
+                        if self.verbose:
+                            print("Group: ", zyre_msg.group_name)
+                    elif zyre_msg.msg_type == "ENTER":
+                        zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
 
-                    msg_content = self.received_msg.pop(0)
+                        self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
+                        if self.verbose:
+                            print("Directory: ", self.peer_directory)
+                            print("Headers: ", zyre_msg.headers)
+                    elif zyre_msg.msg_type == "WHISPER":
+                        pass
+                    elif zyre_msg.msg_type == "JOIN":
+                        pass
+                    elif zyre_msg.msg_type == "LEAVE":
+                        print(len(self.received_msg))
+                        continue
+                    elif zyre_msg.msg_type == "EXIT":
+                        continue
+                    elif zyre_msg.msg_type == "PING":
+                        pass
+                    elif zyre_msg.msg_type == "PING_OK":
+                        pass
+                    elif zyre_msg.msg_type == "HELLO":
+                        pass
+                    elif zyre_msg.msg_type == "STOP":
+                        break
+                    else:
+                        print("Unrecognized message type!")
+
+                    zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
 
                     if self.verbose:
-                        print("Content: ", msg_content)
+                        print("Content: ", zyre_msg.msg_content)
 
-                    self.receive_msg_cb(msg_content)
-
+                    self.receive_msg_cb(zyre_msg.msg_content)
 
             except (KeyboardInterrupt, SystemExit):
                 self.terminated = True
                 break
-        self.ctx.term()
-        print("Context status:", self.ctx.closed())
-        self.stop()
         print("Exiting.......")
 
     def shout(self, msg, groups=None):
@@ -128,7 +151,9 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
 
         if isinstance(msg, dict):
-            message = str(msg).encode('utf-8')
+            # NOTE: json.dumps must be used instead of str, since it returns the correct
+            # type of string
+            message = json.dumps(msg).encode('utf-8')
         else:
             message = msg.encode('utf-8')
 
@@ -199,7 +224,13 @@ def main():
                                 ["OTHER-GROUP", "CHAT", "TEST", "PYRE"],
                                 ["TEST_MSG"],
                                 True)
-    test.test()
+
+    try:
+        test.test()
+        while True:
+            time.sleep(0.5)
+    except (KeyboardInterrupt, SystemExit):
+        test.shutdown()
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ import threading
 import ast
 import datetime
 
-from zyre_params import ZyreMsg
+from pyre_communicator.zyre_params import ZyreMsg
 from pyre.zactor import ZActor
 
 ZYRE_SLEEP_TIME = 0.250
@@ -217,6 +217,14 @@ class PyreBaseCommunicator(pyre.Pyre):
             time.sleep(1)
         self.whisper("hello whispering", peer_name="chat_tester")
         self.whisper("hello whispering", peer_names=["chat_tester", "chat_tester"])
+
+    def shutdown(self):
+        self.stop()
+        self.pipe.disable_monitor()
+        self.pipe.close()
+        self.ctx.term()
+        self.terminated = True
+
 
 
 def main():

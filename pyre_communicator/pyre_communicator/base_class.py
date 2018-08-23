@@ -137,23 +137,42 @@ class PyreBaseCommunicator(pyre.Pyre):
             for group in self.groups():
                 super().shout(group, message)
 
-    def whisper(self, msg, peer_uuid):
+    def whisper(self, msg, peer=None, peers=None, peer_name=None, peer_names=None):
         """
         Whispers a message to a peer.
         For Python 3 encodes the message to utf-8.
 
         Params:
-            msg: the string to be sent
-            peer_uuid: string of 32 hexadecimal digits of the peer uuid
+            :string msg: the string to be sent
+            :UUID peer: a single peer UUID
+            :list peers: a list of peer UUIDs
+            :string peer_name the name of a peer
+            :list peer_names a list of peer names
         """
 
         message = msg.encode('utf-8')
 
-        if isinstance(peer_uuid, list):
-            pass
-        else:
+        if not peer and not peers and not peer_name and not peer_names:
+            print("Need a peer to whisper to, doing nothing...")
+            return
+
+        if peer:
+            super().whisper(peer, message)
+        elif peers:
+            for peer in peers:
+                time.sleep(1)
+                self.whispers(peer, message)
+        elif peer_name:
             time.sleep(1)
-            self.node.whispers(uuid.UUID(hex=peer_uuid), message)
+            valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
+            for peer_uuid in valid_uuids:
+                super().whisper(peer_uuid, message)
+        elif peer_names:
+            for peer_name in peer_names:
+                valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
+                for peer_uuid in valid_uuids:
+                    super().whisper(peer_uuid, message)
+                time.sleep(1)
 
     def test(self):
         print(self.name())

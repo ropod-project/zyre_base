@@ -12,6 +12,8 @@ import datetime
 
 from pyre.zactor import ZActor
 
+ZYRE_SLEEP_TIME = 0.250
+
 class PyreBaseCommunicator(pyre.Pyre):
     def __init__(self, node_name, groups, message_types, verbose=False,
                  interface=None):
@@ -30,8 +32,7 @@ class PyreBaseCommunicator(pyre.Pyre):
 
         for group in groups:
             self.join(group)
-            time.sleep(1)
-
+            time.sleep(ZYRE_SLEEP_TIME)
         self.terminated = False
 
         self.ctx = zmq.Context()
@@ -135,7 +136,7 @@ class PyreBaseCommunicator(pyre.Pyre):
             if isinstance(groups, list):
                 for group in groups:
                     super().shout(group, message)
-                    time.sleep(1)
+                    time.sleep(ZYRE_SLEEP_TIME)
             else:
                 # TODO Do we need formatted strings?
                 super().shout(groups, message)
@@ -166,26 +167,26 @@ class PyreBaseCommunicator(pyre.Pyre):
             super().whisper(peer, message)
         elif peers:
             for peer in peers:
-                time.sleep(1)
+                time.sleep(ZYRE_SLEEP_TIME)
                 self.whispers(peer, message)
         elif peer_name:
-            time.sleep(1)
             valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
             for peer_uuid in valid_uuids:
+                time.sleep(ZYRE_SLEEP_TIME)
                 super().whisper(peer_uuid, message)
         elif peer_names:
             for peer_name in peer_names:
                 valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
                 for peer_uuid in valid_uuids:
                     super().whisper(peer_uuid, message)
-                time.sleep(1)
+                time.sleep(ZYRE_SLEEP_TIME)
 
     def test(self):
         print(self.name())
         print(self.groups())
         print(self.peers())
 
-        time.sleep(1)
+        time.sleep(ZYRE_SLEEP_TIME)
         for group in self.own_groups():
             self.shout("hello", group)
             time.sleep(1)

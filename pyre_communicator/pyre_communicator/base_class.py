@@ -124,7 +124,7 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
 
         if isinstance(msg, dict):
-            message = str(dict).encode('utf-8')
+            message = str(msg).encode('utf-8')
         else:
             message = msg.encode('utf-8')
 

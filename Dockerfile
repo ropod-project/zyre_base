@@ -14,6 +14,12 @@ RUN apt-get -y update && apt-get install -y \
     unzip \
     libssl-dev \
     libsasl2-dev \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 ADD . /opt/ropod/ropod_common/
+WORKDIR /opt/ropod/ropod_common/
+RUN python3 -m pip install --upgrade pip \
+    && pip3 install https://github.com/ropod-project/pyre/archive/master.zip \
+    && pip3 install -r requirements.txt && \
+    python3 setup.py develop

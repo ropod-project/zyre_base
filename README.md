@@ -14,5 +14,5 @@ sudo mv ropod_common /opt/ropod/
 For the pyre base class, you can run:
 
 ```
-sudo python setup.py develop
+sudo pip3 install -e .
 ```

@@ -1,20 +1,17 @@
 import pyre
 import time
 import uuid
-import sys
 import json
 import zmq
 from pyre import zhelper
-import signal
-import threading
 import ast
 import datetime
 
 # from zyre_params import ZyreMsg
 from pyre_communicator.zyre_params import ZyreMsg
-from pyre.zactor import ZActor
 
-ZYRE_SLEEP_TIME = 0.250
+ZYRE_SLEEP_TIME = 0.250  # type: float
+
 
 class PyreBaseCommunicator(pyre.Pyre):
     def __init__(self, node_name, groups, message_types, verbose=False,
@@ -231,7 +228,6 @@ class PyreBaseCommunicator(pyre.Pyre):
         self.pipe.close()
         self.ctx.term()
         self.terminated = True
-
 
 
 def main():

@@ -1,3 +1,5 @@
+[![pipeline status](https://git.ropod.org/ropod/ropod_common/badges/master/pipeline.svg)](https://git.ropod.org/ropod/ropod_common/commits/master)
+
 # ROPOD Common Repository
 
 ## Zyre Communicator
@@ -6,5 +8,11 @@ Abstract Base Class to enable comfortable zyre communication through inheritance
 ## Install
 ```
 git clone git@git.ropod.org:ropod/ropod_common.git
-sudo mv ropod_common /opt/
+sudo mv ropod_common /opt/ropod/
+```
+
+For the pyre base class, you can run:
+
+```
+sudo python setup.py develop
 ```

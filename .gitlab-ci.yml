@@ -1,0 +1,45 @@
+image: docker:stable
+
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+
+services:
+  - name: docker:dind
+    command: ["--insecure-registry=git.ropod.org:4567"] # self-signed cetificate
+
+stages:
+  - build
+  - test
+  - release
+
+before_script:
+  - docker info
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN git.ropod.org:4567
+  - echo $CONTAINER_TEST_IMAGE
+  - echo $CONTAINER_RELEASE_IMAGE
+
+build:
+  stage: build
+  script:
+    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+
+test:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker run $CONTAINER_TEST_IMAGE bash -c "cd /opt/ropod/ropod_common/ && mkdir build && cd build && cmake .. && make"
+
+release-image:
+  stage: release
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+  only:
+    - master
+    - tags

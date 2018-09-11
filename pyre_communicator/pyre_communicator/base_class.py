@@ -10,6 +10,7 @@ import threading
 import ast
 import datetime
 
+# from zyre_params import ZyreMsg
 from pyre_communicator.zyre_params import ZyreMsg
 from pyre.zactor import ZActor
 
@@ -182,7 +183,13 @@ class PyreBaseCommunicator(pyre.Pyre):
             :list peer_names a list of peer names
         """
 
-        message = msg.encode('utf-8')
+        if isinstance(msg, dict):
+            # NOTE: json.dumps must be used instead of str, since it returns the correct
+            # type of string
+            message = json.dumps(msg).encode('utf-8')
+        else:
+            message = msg.encode('utf-8')
+        # message = msg.encode('utf-8')
 
         if not peer and not peers and not peer_name and not peer_names:
             print("Need a peer to whisper to, doing nothing...")

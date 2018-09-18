@@ -49,7 +49,11 @@ class PyreBaseCommunicator(pyre.Pyre):
     def convert_zyre_msg_to_dict(self, msg):
         try:
             return ast.literal_eval(msg)
-        except:
+        except ValueError:
+            return json.loads(msg)
+        except Exception as e:
+            print("Couldn't convert zyre_msg to dictionary")
+            print(e)
             return None
 
     def leave_groups(self, groups):
@@ -90,7 +94,7 @@ class PyreBaseCommunicator(pyre.Pyre):
                 else:
                     self.received_msg = self.recv()
                     if self.verbose:
-                         print(self.received_msg)
+                        print(self.received_msg)
 
                     zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
                                        peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),

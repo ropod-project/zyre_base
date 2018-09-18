@@ -138,7 +138,8 @@ class PyreBaseCommunicator(pyre.Pyre):
                     if self.verbose:
                         print("Content: ", zyre_msg.msg_content)
 
-                    self.receive_msg_cb(zyre_msg.msg_content)
+                    if zyre_msg.msg_type == "SHOUT" or zyre_msg.msg_type == "WHISPER":
+                        self.receive_msg_cb(zyre_msg.msg_content)
 
             except (KeyboardInterrupt, SystemExit):
                 self.terminated = True

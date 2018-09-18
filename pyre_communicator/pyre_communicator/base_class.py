@@ -31,7 +31,6 @@ class PyreBaseCommunicator(pyre.Pyre):
         self.verbose = verbose
         self.start()
 
-
         assert isinstance(groups, list)
         for group in groups:
             self.join(group)
@@ -63,11 +62,16 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
         return str(uuid.uuid4())
 
-    def get_time_stamp(self):
+    def get_time_stamp(self, timedelta=None):
         """
-        Returns a string containing the time stamp in ISO format
+        Returns a string containing the time stamp in ISO formato
+        @param timedelta    datetime.timedelta object specifying the difference
+                            between today and the desired date
         """
-        return datetime.datetime.today().isoformat()
+        if timedelta is None:
+            return datetime.now(timezone.utc).isoformat()
+        else:
+            return (datetime.now(timezone.utc) + timedelta).isoformat()
 
     def receive_loop(self, ctx, pipe):
 
@@ -153,8 +157,8 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
 
         if isinstance(msg, dict):
-            # NOTE: json.dumps must be used instead of str, since it returns the correct
-            # type of string
+            # NOTE: json.dumps must be used instead of str, since it returns
+            # the correct type of string
             message = json.dumps(msg).encode('utf-8')
         else:
             message = msg.encode('utf-8')
@@ -185,8 +189,8 @@ class PyreBaseCommunicator(pyre.Pyre):
         """
 
         if isinstance(msg, dict):
-            # NOTE: json.dumps must be used instead of str, since it returns the correct
-            # type of string
+            # NOTE: json.dumps must be used instead of str, since it returns
+            # the correct type of string
             message = json.dumps(msg).encode('utf-8')
         else:
             message = msg.encode('utf-8')

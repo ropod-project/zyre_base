@@ -19,6 +19,8 @@ class PyreBaseCommunicator(pyre.Pyre):
         super(PyreBaseCommunicator, self).__init__(name=node_name)
 
         self.group_names = groups
+
+        assert isinstance(message_types, list)
         self.message_types = message_types
         self.peer_directory = {}
 
@@ -29,6 +31,8 @@ class PyreBaseCommunicator(pyre.Pyre):
         self.verbose = verbose
         self.start()
 
+
+        assert isinstance(groups, list)
         for group in groups:
             self.join(group)
             time.sleep(ZYRE_SLEEP_TIME)

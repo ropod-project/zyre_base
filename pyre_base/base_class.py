@@ -133,13 +133,20 @@ class PyreBase(pyre.Pyre):
                         print("----- new message ----- ")
                         print(zyre_msg)
 
-                    if zyre_msg.msg_type == "SHOUT" or zyre_msg.msg_type == "WHISPER":
-                        self.receive_msg_cb(zyre_msg.msg_content)
+                    if zyre_msg.msg_type in ("SHOUT", "WHISPER"):
+                        if self.acknowledge:
+                            self.send_acknowledgment(zyre_msg)
+
+                    self.zyre_event_cb(zyre_msg)
 
             except (KeyboardInterrupt, SystemExit):
                 self.terminated = True
                 break
         print("Exiting.......")
+
+    def zyre_event_cb(self, zyre_msg):
+        if zyre_msg.msg_type in ("SHOUT", "WHISPER"):
+            self.receive_msg_cb(zyre_msg.msg_content)
 
     def shout(self, msg, groups=None):
         """

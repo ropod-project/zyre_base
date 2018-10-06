@@ -99,23 +99,14 @@ class PyreBase(pyre.Pyre):
                                        peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
                                        peer_name=self.received_msg.pop(0).decode('utf-8'))
 
-                    if self.verbose:
-                        print("----- new message ----- ")
-                        print("Type: ", zyre_msg.msg_type)
-                        print("Peer UUID: ", zyre_msg.peer_uuid)
-                        print("Peer Name: ", zyre_msg.peer_name)
-
                     if zyre_msg.msg_type == "SHOUT":
-                        zyre_msg.update(group_name=self.received_msg.pop(0))
-                        if self.verbose:
-                            print("Group: ", zyre_msg.group_name)
+                        zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
                     elif zyre_msg.msg_type == "ENTER":
                         zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
 
                         self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
                         if self.verbose:
                             print("Directory: ", self.peer_directory)
-                            print("Headers: ", zyre_msg.headers)
                     elif zyre_msg.msg_type == "WHISPER":
                         pass
                     elif zyre_msg.msg_type == "JOIN":
@@ -139,7 +130,8 @@ class PyreBase(pyre.Pyre):
                     zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
 
                     if self.verbose:
-                        print("Content: ", zyre_msg.msg_content)
+                        print("----- new message ----- ")
+                        print(zyre_msg)
 
                     if zyre_msg.msg_type == "SHOUT" or zyre_msg.msg_type == "WHISPER":
                         self.receive_msg_cb(zyre_msg.msg_content)

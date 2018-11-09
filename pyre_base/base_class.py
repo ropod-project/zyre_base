@@ -28,18 +28,22 @@ class PyreBase(pyre.Pyre):
             self.interface = interface
 
         self.verbose = verbose
-        self.start()
-
-        assert isinstance(groups, list)
-        for group in groups:
-            self.join(group)
-            time.sleep(ZYRE_SLEEP_TIME)
+        # self.start()
         self.terminated = False
 
         self.ctx = zmq.Context()
         self.pipe = zhelper.zthread_fork(self.ctx, self.receive_loop)
 
+        def start():
+            super(PyreBase, self).start()
+
+            assert isinstance(groups, list)
+            for group in groups:
+                time.sleep(ZYRE_SLEEP_TIME)
+                self.join(group)
+
     def receive_msg_cb(self, msg_content):
+        raise NotImplementedError
         pass
 
     def groups(self):
@@ -247,6 +251,7 @@ def main():
                                 True)
 
     try:
+        test.start()
         test.test()
         while True:
             time.sleep(0.5)

@@ -1,10 +1,10 @@
-#include "ZyreBaseCommunicator.h"
+#include "ZyreBase.h"
 #include <iostream>
 #include <cstdarg>
 #include <algorithm>  // provides std::find
 #include <sstream>
 
-ZyreBaseCommunicator::ZyreBaseCommunicator(const std::string &nodeName,
+ZyreBase::ZyreBase(const std::string &nodeName,
 		 const std::vector<std::string> &groups,
 		 const std::vector<std::string> &messageTypes,
 		 const bool &printAllReceivedMessages,
@@ -31,7 +31,7 @@ ZyreBaseCommunicator::ZyreBaseCommunicator(const std::string &nodeName,
     assert(receiveActor);
 }
 
-ZyreBaseCommunicator::~ZyreBaseCommunicator()
+ZyreBase::~ZyreBase()
 {
     leaveGroup(params.groups);
     zactor_destroy(&receiveActor);
@@ -40,12 +40,12 @@ ZyreBaseCommunicator::~ZyreBaseCommunicator()
     zyre_destroy(&node);
 }
 
-void ZyreBaseCommunicator::printNodeName()
+void ZyreBase::printNodeName()
 {
     std::cout << "nodeName: " << params.nodeName << std::endl;
 }
 
-void ZyreBaseCommunicator::printJoinedGroups()
+void ZyreBase::printJoinedGroups()
 {
     std::stringstream msg;
     msg << params.nodeName << "--- Printing joined groups: " << "\n";
@@ -57,7 +57,7 @@ void ZyreBaseCommunicator::printJoinedGroups()
     std::cout << msg.rdbuf();
 }
 
-void ZyreBaseCommunicator::printReceivingMessageTypes()
+void ZyreBase::printReceivingMessageTypes()
 {
     std::cout << params.nodeName << "--- Printing receiving message Types: " << std::endl;
     for (auto it = params.messageTypes.begin(); it != params.messageTypes.end(); it++)
@@ -66,9 +66,9 @@ void ZyreBaseCommunicator::printReceivingMessageTypes()
     }
 }
 
-void ZyreBaseCommunicator::receiveLoop(zsock_t *pipe, void *args)
+void ZyreBase::receiveLoop(zsock_t *pipe, void *args)
 {
-    ZyreBaseCommunicator* objectPtr = (ZyreBaseCommunicator*) args;
+    ZyreBase* objectPtr = (ZyreBase*) args;
 
     zsock_signal (pipe, 0);     //  Signal "ready" to caller
     bool terminated = false;
@@ -118,7 +118,7 @@ void ZyreBaseCommunicator::receiveLoop(zsock_t *pipe, void *args)
     zpoller_destroy (&poller);
 }
 
-zmsg_t* ZyreBaseCommunicator::stringToZmsg(std::string msg)
+zmsg_t* ZyreBase::stringToZmsg(std::string msg)
 {
     zmsg_t* message = zmsg_new();
     zframe_t *frame = zframe_new(msg.c_str(), msg.size());
@@ -126,7 +126,7 @@ zmsg_t* ZyreBaseCommunicator::stringToZmsg(std::string msg)
     return message;
 }
 
-void ZyreBaseCommunicator::shout(const std::string &message, const std::vector<std::string> &groups)
+void ZyreBase::shout(const std::string &message, const std::vector<std::string> &groups)
 {
     // TODO: check if subscribed to group
     // zstr_sendx(this->receiveActor, "SHOUT", message, groups, NULL);
@@ -136,7 +136,7 @@ void ZyreBaseCommunicator::shout(const std::string &message, const std::vector<s
     }
 }
 
-void ZyreBaseCommunicator::shout(const std::string &message)
+void ZyreBase::shout(const std::string &message)
 {
     for (auto it = params.groups.begin(); it != params.groups.end(); it++)
     {
@@ -144,7 +144,7 @@ void ZyreBaseCommunicator::shout(const std::string &message)
     }
 }
 
-void ZyreBaseCommunicator::shout(const std::string &message, const std::string &group)
+void ZyreBase::shout(const std::string &message, const std::string &group)
 {
     zyre_shouts(node, group.c_str(), "%s", message.c_str());
 //    zmsg_t *msg = this->stringToZmsg(message);
@@ -152,12 +152,12 @@ void ZyreBaseCommunicator::shout(const std::string &message, const std::string &
 }
 
 
-void ZyreBaseCommunicator::whisper(const std::string &message, const std::string &peer)
+void ZyreBase::whisper(const std::string &message, const std::string &peer)
 {
     zyre_whispers(node, peer.c_str(), "%s", message.c_str());
 }
 
-void ZyreBaseCommunicator::whisper(const std::string &message, const std::vector<std::string> &peers)
+void ZyreBase::whisper(const std::string &message, const std::vector<std::string> &peers)
 {
     for (auto it = peers.begin(); it != peers.end(); ++it)
     {
@@ -165,7 +165,7 @@ void ZyreBaseCommunicator::whisper(const std::string &message, const std::vector
     }
 }
 
-void ZyreBaseCommunicator::joinGroup(const std::string &group)
+void ZyreBase::joinGroup(const std::string &group)
 {
     auto it = std::find(params.groups.begin(), params.groups.end(), group);
     if (it == params.groups.end())  // if node is not subscribed to group
@@ -180,7 +180,7 @@ void ZyreBaseCommunicator::joinGroup(const std::string &group)
     }
 }
 
-void ZyreBaseCommunicator::joinGroup(const std::vector<std::string> &groups)
+void ZyreBase::joinGroup(const std::vector<std::string> &groups)
 {
     for (auto it = groups.begin(); it != groups.end(); it++)
     {
@@ -188,12 +188,12 @@ void ZyreBaseCommunicator::joinGroup(const std::vector<std::string> &groups)
     }
 }
 
-void ZyreBaseCommunicator::leaveGroup(const std::string &group)
+void ZyreBase::leaveGroup(const std::string &group)
 {
     leaveGroup(std::vector<std::string> {group});
 }
 
-void ZyreBaseCommunicator::leaveGroup(std::vector<std::string> groups)
+void ZyreBase::leaveGroup(std::vector<std::string> groups)
 {
     for (auto it = groups.begin(); it != groups.end(); it++)
     {
@@ -213,7 +213,7 @@ void ZyreBaseCommunicator::leaveGroup(std::vector<std::string> groups)
     }
 }
 
-ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
+ZyreMsgContent* ZyreBase::zmsgToZyreMsgContent(zmsg_t *msg)
 {
     std::string sevent, speer, sname, sgroup, smessage;
     char *event, *peer, *name, *group, *message;
@@ -244,7 +244,7 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
   *
   * @param msg_params message data
   */
- Json::Value ZyreBaseCommunicator::convertZyreMsgToJson(ZyreMsgContent* msg_params)
+ Json::Value ZyreBase::convertZyreMsgToJson(ZyreMsgContent* msg_params)
  {
     std::stringstream msg_stream;
     msg_stream << msg_params->message;
@@ -257,13 +257,13 @@ ZyreMsgContent* ZyreBaseCommunicator::zmsgToZyreMsgContent(zmsg_t *msg)
     return root;
 }
 
-std::string ZyreBaseCommunicator::convertJsonToString(const Json::Value &root)
+std::string ZyreBase::convertJsonToString(const Json::Value &root)
 {
     std::string msg = Json::writeString(json_stream_builder_, root);
 	return msg;
 }
 
-std::string ZyreBaseCommunicator::generateUUID()
+std::string ZyreBase::generateUUID()
 {
     zuuid_t *uuid = zuuid_new();
     const char *uuid_cstr = zuuid_str_canonical(uuid);
@@ -272,12 +272,12 @@ std::string ZyreBaseCommunicator::generateUUID()
     return std::string(uuid_str);
 }
 
-void ZyreBaseCommunicator::printZyreMsgContent(const ZyreMsgContent &msgContent)
+void ZyreBase::printZyreMsgContent(const ZyreMsgContent &msgContent)
 {
 
 }
 
-std::string ZyreBaseCommunicator::getTimeStamp()
+std::string ZyreBase::getTimeStamp()
 {
 	time_t now;
     time(&now);

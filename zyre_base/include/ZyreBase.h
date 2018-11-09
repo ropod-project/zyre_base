@@ -1,5 +1,5 @@
-#ifndef ZYREBASECOMMUNICATOR_H
-#define ZYREBASECOMMUNICATOR_H
+#ifndef ZYREBASE_H
+#define ZYREBASE_H
 
 #include<zyre.h>
 #include<string>
@@ -30,14 +30,14 @@ struct ZyreMsgContent
     std::string message;
 };
 
-class ZyreBaseCommunicator {
+class ZyreBase {
     public:
-    ZyreBaseCommunicator(const std::string &nodeName,
+    ZyreBase(const std::string &nodeName,
 	    const std::vector<std::string> &groups,
 	    const std::vector<std::string> &messageTypes,
 	    const bool &printAllReceivedMessages,
         const std::string& interface="");
-    ~ZyreBaseCommunicator();
+    ~ZyreBase();
 
     void shout(const std::string &message);
     void shout(const std::string &message, const std::string &group);

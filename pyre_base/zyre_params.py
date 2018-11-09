@@ -8,7 +8,6 @@ class ZyreParams(object):
         return str(self.node_name), str(self.groups), str(self.message_types)
 
 
-
 class ZyreMsg(object):
     def __init__(self, **kwds):
         self.__dict__.update(kwds)

@@ -7,13 +7,12 @@ from pyre import zhelper
 import ast
 from datetime import timezone, timedelta, datetime
 
-# from zyre_params import ZyreMsg
-from pyre_communicator.zyre_params import ZyreMsg
+from pyre_base.zyre_params import ZyreMsg
 
 ZYRE_SLEEP_TIME = 0.250  # type: float
 
 
-class PyreBaseCommunicator(pyre.Pyre):
+class PyreBase(pyre.Pyre):
     def __init__(self, node_name, groups, message_types, verbose=False,
                  interface=None):
         super(PyreBaseCommunicator, self).__init__(name=node_name)
@@ -199,7 +198,6 @@ class PyreBaseCommunicator(pyre.Pyre):
             message = json.dumps(msg).encode('utf-8')
         else:
             message = msg.encode('utf-8')
-        # message = msg.encode('utf-8')
 
         if not peer and not peers and not peer_name and not peer_names:
             print("Need a peer to whisper to, doing nothing...")

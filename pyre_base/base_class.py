@@ -15,7 +15,7 @@ ZYRE_SLEEP_TIME = 0.250  # type: float
 class PyreBase(pyre.Pyre):
     def __init__(self, node_name, groups, message_types, verbose=False,
                  interface=None):
-        super(PyreBaseCommunicator, self).__init__(name=node_name)
+        super(PyreBase, self).__init__(name=node_name)
 
         self.group_names = groups
 
@@ -170,14 +170,14 @@ class PyreBase(pyre.Pyre):
         if groups:
             if isinstance(groups, list):
                 for group in groups:
-                    super(PyreBaseCommunicator, self).shout(group, message)
+                    super(PyreBase, self).shout(group, message)
                     time.sleep(ZYRE_SLEEP_TIME)
             else:
                 # TODO Do we need formatted strings?
-                super(PyreBaseCommunicator, self).shout(groups, message)
+                super(PyreBase, self).shout(groups, message)
         else:
             for group in self.groups():
-                super(PyreBaseCommunicator, self).shout(group, message)
+                super(PyreBase, self).shout(group, message)
 
     def whisper(self, msg, peer=None, peers=None, peer_name=None, peer_names=None):
         """
@@ -204,7 +204,7 @@ class PyreBase(pyre.Pyre):
             return
 
         if peer:
-            super(PyreBaseCommunicator, self).whisper(peer, message)
+            super(PyreBase, self).whisper(peer, message)
         elif peers:
             for peer in peers:
                 time.sleep(ZYRE_SLEEP_TIME)
@@ -213,12 +213,12 @@ class PyreBase(pyre.Pyre):
             valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
             for peer_uuid in valid_uuids:
                 time.sleep(ZYRE_SLEEP_TIME)
-                super(PyreBaseCommunicator, self).whisper(peer_uuid, message)
+                super(PyreBase, self).whisper(peer_uuid, message)
         elif peer_names:
             for peer_name in peer_names:
                 valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
                 for peer_uuid in valid_uuids:
-                    super(PyreBaseCommunicator, self).whisper(peer_uuid, message)
+                    super(PyreBase, self).whisper(peer_uuid, message)
                 time.sleep(ZYRE_SLEEP_TIME)
 
     def test(self):
@@ -242,7 +242,7 @@ class PyreBase(pyre.Pyre):
 
 
 def main():
-    test = PyreBaseCommunicator('test',
+    test = PyreBase('test',
                                 ["OTHER-GROUP", "CHAT", "TEST", "PYRE"],
                                 ["TEST_MSG"],
                                 True)

@@ -28,19 +28,15 @@ class PyreBase(pyre.Pyre):
             self.interface = interface
 
         self.verbose = verbose
-        # self.start()
         self.terminated = False
 
         self.ctx = zmq.Context()
         self.pipe = zhelper.zthread_fork(self.ctx, self.receive_loop)
 
-        def start():
-            super(PyreBase, self).start()
-
-            assert isinstance(groups, list)
-            for group in groups:
-                time.sleep(ZYRE_SLEEP_TIME)
-                self.join(group)
+        assert isinstance(groups, list)
+        for group in groups:
+            time.sleep(ZYRE_SLEEP_TIME)
+            self.join(group)
 
     def receive_msg_cb(self, msg_content):
         raise NotImplementedError
@@ -136,10 +132,6 @@ class PyreBase(pyre.Pyre):
                     if self.verbose:
                         print("----- new message ----- ")
                         print(zyre_msg)
-
-                    if zyre_msg.msg_type in ("SHOUT", "WHISPER"):
-                        if self.acknowledge:
-                            self.send_acknowledgment(zyre_msg)
 
                     self.zyre_event_cb(zyre_msg)
 
@@ -246,9 +238,9 @@ class PyreBase(pyre.Pyre):
 
 def main():
     test = PyreBase('test',
-                                ["OTHER-GROUP", "CHAT", "TEST", "PYRE"],
-                                ["TEST_MSG"],
-                                True)
+                    ["OTHER-GROUP", "CHAT", "TEST", "PYRE"],
+                    ["TEST_MSG"],
+                    True)
 
     try:
         test.start()

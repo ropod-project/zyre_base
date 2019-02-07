@@ -1,1 +1,2 @@
 pyzmq==17.1.2
+git+https://github.com/ropod-project/pyre/archive/master.zip

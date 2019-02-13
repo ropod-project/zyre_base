@@ -99,7 +99,7 @@ class PyreBase(pyre.Pyre):
         # The following pyre message types don't need any further processing:
         # 'WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO'
         if zyre_msg.msg_type in ('STOP', 'LEAVE', 'EXIT'):
-            return
+            return zyre_msg
         elif zyre_msg.msg_type == "SHOUT":
             zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
         elif zyre_msg.msg_type == "ENTER":

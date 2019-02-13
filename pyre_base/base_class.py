@@ -74,46 +74,15 @@ class PyreBase(pyre.Pyre):
                     print("CHAT_TASK: %s" % message)
                 else:
                     self.received_msg = self.recv()
-                    if self.verbose:
-                        print(self.received_msg)
 
-                    zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
-                                       peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
-                                       peer_name=self.received_msg.pop(0).decode('utf-8'))
+                    zyre_msg = self.get_zyre_msg()
 
-                    if zyre_msg.msg_type == "SHOUT":
-                        zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
-                    elif zyre_msg.msg_type == "ENTER":
-                        zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
-
-                        self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
-                        if self.verbose:
-                            print("Directory: ", self.peer_directory)
-                    elif zyre_msg.msg_type == "WHISPER":
-                        pass
-                    elif zyre_msg.msg_type == "JOIN":
-                        pass
-                    elif zyre_msg.msg_type == "LEAVE":
-                        print(len(self.received_msg))
+                    if zyre_msg.msg_type in ('LEAVE', 'EXIT'):
                         continue
-                    elif zyre_msg.msg_type == "EXIT":
-                        continue
-                    elif zyre_msg.msg_type == "PING":
-                        pass
-                    elif zyre_msg.msg_type == "PING_OK":
-                        pass
-                    elif zyre_msg.msg_type == "HELLO":
-                        pass
                     elif zyre_msg.msg_type == "STOP":
                         break
-                    else:
-                        print("Unrecognized message type!")
-
-                    zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
-
-                    if self.verbose:
-                        print("----- new message ----- ")
-                        print(zyre_msg)
+                    elif zyre_msg.msg_type not in ('WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO', 'ENTER'):
+                        self.logger.warning("Unrecognized message type: %s", zyre_msg.msg_type)
 
                     self.zyre_event_cb(zyre_msg)
 
@@ -121,6 +90,29 @@ class PyreBase(pyre.Pyre):
                 self.terminated = True
                 break
         print("Exiting.......")
+
+    def get_zyre_msg(self):
+        zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
+                           peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
+                           peer_name=self.received_msg.pop(0).decode('utf-8'))
+
+        # The following pyre message types don't need any further processing:
+        # 'WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO'
+        if zyre_msg.msg_type in ('STOP', 'LEAVE', 'EXIT'):
+            return
+        elif zyre_msg.msg_type == "SHOUT":
+            zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
+        elif zyre_msg.msg_type == "ENTER":
+            zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
+
+            self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
+            self.logger.debug("Directory: %s", self.peer_directory)
+
+        zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
+
+        self.logger.debug("----- new message ----- \n %s", zyre_msg)
+
+        return zyre_msg
 
     def zyre_event_cb(self, zyre_msg):
         if zyre_msg.msg_type in ("SHOUT", "WHISPER"):

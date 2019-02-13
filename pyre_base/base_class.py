@@ -5,7 +5,6 @@ import json
 import zmq
 from pyre import zhelper
 import ast
-from datetime import timezone, timedelta, datetime
 
 from pyre_base.zyre_params import ZyreMsg
 
@@ -58,23 +57,6 @@ class PyreBase(pyre.Pyre):
     def leave_groups(self, groups):
         for group in groups:
             self.leave(group)
-
-    def generate_uuid(self):
-        """
-        Returns a string containing a random uuid
-        """
-        return str(uuid.uuid4())
-
-    def get_time_stamp(self, timedelta=None):
-        """
-        Returns a string containing the time stamp in ISO formato
-        @param timedelta    datetime.timedelta object specifying the difference
-                            between today and the desired date
-        """
-        if timedelta is None:
-            return datetime.now(timezone.utc).isoformat()
-        else:
-            return (datetime.now(timezone.utc) + timedelta).isoformat()
 
     def receive_loop(self, ctx, pipe):
 

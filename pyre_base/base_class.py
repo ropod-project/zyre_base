@@ -5,7 +5,6 @@ import json
 import zmq
 from pyre import zhelper
 import ast
-from datetime import timezone, timedelta, datetime
 
 from pyre_base.zyre_params import ZyreMsg
 
@@ -59,23 +58,6 @@ class PyreBase(pyre.Pyre):
         for group in groups:
             self.leave(group)
 
-    def generate_uuid(self):
-        """
-        Returns a string containing a random uuid
-        """
-        return str(uuid.uuid4())
-
-    def get_time_stamp(self, timedelta=None):
-        """
-        Returns a string containing the time stamp in ISO formato
-        @param timedelta    datetime.timedelta object specifying the difference
-                            between today and the desired date
-        """
-        if timedelta is None:
-            return datetime.now(timezone.utc).isoformat()
-        else:
-            return (datetime.now(timezone.utc) + timedelta).isoformat()
-
     def receive_loop(self, ctx, pipe):
 
         poller = zmq.Poller()
@@ -92,46 +74,15 @@ class PyreBase(pyre.Pyre):
                     print("CHAT_TASK: %s" % message)
                 else:
                     self.received_msg = self.recv()
-                    if self.verbose:
-                        print(self.received_msg)
 
-                    zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
-                                       peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
-                                       peer_name=self.received_msg.pop(0).decode('utf-8'))
+                    zyre_msg = self.get_zyre_msg()
 
-                    if zyre_msg.msg_type == "SHOUT":
-                        zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
-                    elif zyre_msg.msg_type == "ENTER":
-                        zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
-
-                        self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
-                        if self.verbose:
-                            print("Directory: ", self.peer_directory)
-                    elif zyre_msg.msg_type == "WHISPER":
-                        pass
-                    elif zyre_msg.msg_type == "JOIN":
-                        pass
-                    elif zyre_msg.msg_type == "LEAVE":
-                        print(len(self.received_msg))
+                    if zyre_msg.msg_type in ('LEAVE', 'EXIT'):
                         continue
-                    elif zyre_msg.msg_type == "EXIT":
-                        continue
-                    elif zyre_msg.msg_type == "PING":
-                        pass
-                    elif zyre_msg.msg_type == "PING_OK":
-                        pass
-                    elif zyre_msg.msg_type == "HELLO":
-                        pass
                     elif zyre_msg.msg_type == "STOP":
                         break
-                    else:
-                        print("Unrecognized message type!")
-
-                    zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
-
-                    if self.verbose:
-                        print("----- new message ----- ")
-                        print(zyre_msg)
+                    elif zyre_msg.msg_type not in ('WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO', 'ENTER'):
+                        self.logger.warning("Unrecognized message type: %s", zyre_msg.msg_type)
 
                     self.zyre_event_cb(zyre_msg)
 
@@ -139,6 +90,29 @@ class PyreBase(pyre.Pyre):
                 self.terminated = True
                 break
         print("Exiting.......")
+
+    def get_zyre_msg(self):
+        zyre_msg = ZyreMsg(msg_type=self.received_msg.pop(0).decode('utf-8'),
+                           peer_uuid=uuid.UUID(bytes=self.received_msg.pop(0)),
+                           peer_name=self.received_msg.pop(0).decode('utf-8'))
+
+        # The following pyre message types don't need any further processing:
+        # 'WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO'
+        if zyre_msg.msg_type in ('STOP', 'LEAVE', 'EXIT'):
+            return zyre_msg
+        elif zyre_msg.msg_type == "SHOUT":
+            zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
+        elif zyre_msg.msg_type == "ENTER":
+            zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
+
+            self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
+            self.logger.debug("Directory: %s", self.peer_directory)
+
+        zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
+
+        self.logger.debug("----- new message ----- \n %s", zyre_msg)
+
+        return zyre_msg
 
     def zyre_event_cb(self, zyre_msg):
         if zyre_msg.msg_type in ("SHOUT", "WHISPER"):
@@ -182,9 +156,9 @@ class PyreBase(pyre.Pyre):
         Params:
             :string msg: the string to be sent
             :UUID peer: a single peer UUID
-            :list peers: a list of peer UUIDs
-            :string peer_name the name of a peer
-            :list peer_names a list of peer names
+            :list peer: a list of peer UUIDs
+            :string peer: the name of a peer
+            :list peer: a list of peer names
         """
 
         if isinstance(msg, dict):
@@ -194,27 +168,26 @@ class PyreBase(pyre.Pyre):
         else:
             message = msg.encode('utf-8')
 
-        if not peer and not peers and not peer_name and not peer_names:
-            print("Need a peer to whisper to, doing nothing...")
-            return
+        if isinstance(peer, UUID):
+            self.whisper_to_uuid(peer, message)
+        elif isinstance(peer, list):
+            for p in peer:
+                time.sleep(ZYRE_SLEEP_TIME)
+                if isinstance(p, UUID):
+                    self.whisper_to_uuid(p, message)
+                else:
+                    self.whisper_to_name(p, message)
+        elif isinstance(peer, str):
+            self.whisper_to_name(peer, message)
 
-        if peer:
-            super(PyreBase, self).whisper(peer, message)
-        elif peers:
-            for peer in peers:
-                time.sleep(ZYRE_SLEEP_TIME)
-                self.whispers(peer, message)
-        elif peer_name:
-            valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
-            for peer_uuid in valid_uuids:
-                time.sleep(ZYRE_SLEEP_TIME)
-                super(PyreBase, self).whisper(peer_uuid, message)
-        elif peer_names:
-            for peer_name in peer_names:
-                valid_uuids = [k for k, v in self.peer_directory.items() if v == peer_name]
-                for peer_uuid in valid_uuids:
-                    super(PyreBase, self).whisper(peer_uuid, message)
-                time.sleep(ZYRE_SLEEP_TIME)
+    def whisper_to_uuid(self, peer, message):
+        super(PyreBase, self).whisper(peer, message)
+
+    def whisper_to_name(self, peer_name, message):
+        for k, v in self.peer_directory.items():
+            if v == peer_name:
+                self.whisper_to_uuid(k, message)
+                return
 
     def test(self):
         print(self.name())

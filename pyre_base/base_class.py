@@ -39,7 +39,6 @@ class PyreBase(pyre.Pyre):
 
     def receive_msg_cb(self, msg_content):
         raise NotImplementedError
-        pass
 
     def groups(self):
         return self.own_groups()
@@ -148,7 +147,7 @@ class PyreBase(pyre.Pyre):
             for group in self.groups():
                 super(PyreBase, self).shout(group, message)
 
-    def whisper(self, msg, peer=None, peers=None, peer_name=None, peer_names=None):
+    def whisper(self, msg, peer=None):
         """
         Whispers a message to a peer.
         For Python 3 encodes the message to utf-8.
@@ -198,8 +197,8 @@ class PyreBase(pyre.Pyre):
         for group in self.own_groups():
             self.shout("hello", group)
             time.sleep(1)
-        self.whisper("hello whispering", peer_name="chat_tester")
-        self.whisper("hello whispering", peer_names=["chat_tester", "chat_tester"])
+        self.whisper("hello whispering", peer="chat_tester")
+        self.whisper("hello whispering", peer=["chat_tester", "chat_tester"])
 
     def shutdown(self):
         self.stop()

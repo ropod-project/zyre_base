@@ -13,8 +13,7 @@ ZYRE_SLEEP_TIME = 0.250  # type: float
 
 
 class PyreBase(pyre.Pyre):
-    def __init__(self, node_name, groups, message_types, verbose=False,
-                 interface=None):
+    def __init__(self, node_name, groups, message_types, interface=None):
         super(PyreBase, self).__init__(name=node_name)
 
         self.group_names = groups
@@ -31,7 +30,6 @@ class PyreBase(pyre.Pyre):
             self.set_interface(interface)
             self.interface = interface
 
-        self.verbose = verbose
         self.terminated = False
 
         self.ctx = zmq.Context()

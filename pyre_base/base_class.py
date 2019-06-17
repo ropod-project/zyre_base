@@ -97,10 +97,15 @@ class PyreBase(pyre.Pyre):
 
         # The following pyre message types don't need any further processing:
         # 'WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO'
-        if zyre_msg.msg_type in ('STOP', 'LEAVE', 'EXIT'):
+        if zyre_msg.msg_type in ('STOP', 'LEAVE'):
             return zyre_msg
         elif zyre_msg.msg_type == "SHOUT":
             zyre_msg.update(group_name=self.received_msg.pop(0).decode('utf-8'))
+        elif zyre_msg.msg_type == "EXIT":
+            if zyre_msg.peer_uuid in self.peer_directory:
+                del self.peer_directory[zyre_msg.peer_uuid]
+            self.logger.debug("Directory: %s", self.peer_directory)
+            return zyre_msg
         elif zyre_msg.msg_type == "ENTER":
             zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
 

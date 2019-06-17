@@ -1,3 +1,4 @@
+import os
 import pyre
 import time
 import uuid
@@ -23,6 +24,10 @@ class PyreBase(pyre.Pyre):
         self.peer_directory = {}
 
         if interface:
+            self.set_interface(interface)
+            self.interface = interface
+        elif 'ZSYS_INTERFACE' in os.environ:
+            interface = os.environ['ZSYS_INTERFACE']
             self.set_interface(interface)
             self.interface = interface
 

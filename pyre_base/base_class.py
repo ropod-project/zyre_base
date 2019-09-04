@@ -17,6 +17,7 @@ class PyreBase(pyre.Pyre):
         super(PyreBase, self).__init__(name=node_name)
 
         self.group_names = groups
+        print(kwargs)
 
         assert isinstance(message_types, list)
         self.message_types = message_types
@@ -31,7 +32,7 @@ class PyreBase(pyre.Pyre):
             self.interface = interface
 
         self.terminated = False
-        self.debug_messages = kwargs.get('debug_msgs', True)
+        self.debug_msgs = kwargs.get('debug_msgs', True)
 
         self.ctx = zmq.Context()
         self.pipe = zhelper.zthread_fork(self.ctx, self.receive_loop)
@@ -118,7 +119,7 @@ class PyreBase(pyre.Pyre):
 
         zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
 
-        if self.debug_messages:
+        if self.debug_msgs:
             self.logger.debug("----- new message ----- \n %s", zyre_msg)
 
         return zyre_msg

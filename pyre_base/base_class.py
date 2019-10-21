@@ -17,7 +17,6 @@ class PyreBase(pyre.Pyre):
         super(PyreBase, self).__init__(name=node_name)
 
         self.group_names = groups
-        print(kwargs)
 
         assert isinstance(message_types, list)
         self.message_types = message_types

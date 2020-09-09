@@ -13,9 +13,8 @@ ZYRE_SLEEP_TIME = 0.250  # type: float
 
 
 class PyreBase(pyre.Pyre):
-    def __init__(self, node_name, groups, message_types, interface=None, **kwargs):
-        super(PyreBase, self).__init__(name=node_name)
-
+    def __init__(self, node_name, groups, message_types, ctx=None, interface=None, **kwargs):
+        super(PyreBase, self).__init__(name=node_name, ctx=ctx)
         self.group_names = groups
 
         assert isinstance(message_types, list)
@@ -33,8 +32,7 @@ class PyreBase(pyre.Pyre):
         self.terminated = False
         self.debug_msgs = kwargs.get('debug_msgs', True)
 
-        self.ctx = zmq.Context()
-        self.pipe = zhelper.zthread_fork(self.ctx, self.receive_loop)
+        self.pipe = zhelper.zthread_fork(self._ctx, self.receive_loop)
 
         assert isinstance(groups, list)
         for group in groups:
@@ -177,12 +175,12 @@ class PyreBase(pyre.Pyre):
         else:
             message = msg.encode('utf-8')
 
-        if isinstance(peer, UUID):
+        if isinstance(peer, uuid.UUID):
             self.whisper_to_uuid(peer, message)
         elif isinstance(peer, list):
             for p in peer:
                 time.sleep(ZYRE_SLEEP_TIME)
-                if isinstance(p, UUID):
+                if isinstance(p, uuid.UUID):
                     self.whisper_to_uuid(p, message)
                 else:
                     self.whisper_to_name(p, message)
@@ -214,7 +212,6 @@ class PyreBase(pyre.Pyre):
         self.stop()
         self.pipe.disable_monitor()
         self.pipe.close()
-        self.ctx.term()
         self.terminated = True
 
 
@@ -222,7 +219,7 @@ def main():
     test = PyreBase('test',
                     ["OTHER-GROUP", "CHAT", "TEST", "PYRE"],
                     ["TEST_MSG"],
-                    True)
+                    )
 
     try:
         test.start()

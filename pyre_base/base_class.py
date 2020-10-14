@@ -213,6 +213,7 @@ class PyreBase(pyre.Pyre):
         self.pipe.disable_monitor()
         self.pipe.close()
         self.terminated = True
+        self._ctx.destroy()
 
 
 def main():

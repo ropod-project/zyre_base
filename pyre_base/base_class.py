@@ -83,7 +83,8 @@ class PyreBase(pyre.Pyre):
                     elif zyre_msg.msg_type == "STOP":
                         break
                     elif zyre_msg.msg_type not in ('WHISPER', 'JOIN', 'PING', 'PING_OK', 'HELLO', 'ENTER'):
-                        self.logger.warning("Unrecognized message type: %s", zyre_msg.msg_type)
+                        if hasattr(self, 'logger'):
+                            self.logger.warning("Unrecognized message type: %s", zyre_msg.msg_type)
 
                     self.zyre_event_cb(zyre_msg)
 
@@ -106,17 +107,19 @@ class PyreBase(pyre.Pyre):
         elif zyre_msg.msg_type == "EXIT":
             if zyre_msg.peer_uuid in self.peer_directory:
                 del self.peer_directory[zyre_msg.peer_uuid]
-            self.logger.debug("Directory: %s", self.peer_directory)
+            if hasattr(self, 'logger'):
+                self.logger.debug("Directory: %s", self.peer_directory)
             return zyre_msg
         elif zyre_msg.msg_type == "ENTER":
             zyre_msg.update(headers=json.loads(self.received_msg.pop(0).decode('utf-8')))
 
             self.peer_directory[zyre_msg.peer_uuid] = zyre_msg.peer_name
-            self.logger.debug("Directory: %s", self.peer_directory)
+            if hasattr(self, 'logger'):
+                self.logger.debug("Directory: %s", self.peer_directory)
 
         zyre_msg.update(msg_content=self.received_msg.pop(0).decode('utf-8'))
 
-        if self.debug_msgs:
+        if self.debug_msgs and hasattr(self, 'logger'):
             self.logger.debug("----- new message ----- \n %s", zyre_msg)
 
         return zyre_msg
